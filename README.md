@@ -1,5 +1,7 @@
 # School2 (Python & Angular Student Management)
 
+*Last CI/CD Test: 2026-02-03*
+
 This project is a rewrite of the original Java/React Student Management System using **Python (FastAPI)** for the backend and **Angular 17** for the frontend.
 
 ## Project Structure

@@ -1,0 +1,45 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: python-mysql-db-prod
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=studentdevdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: python-backend-prod
+    image: leventoner/student-python-backend:latest
+    build: ./backend
+    restart: on-failure
+    ports:
+      - "8084:8083"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:root@db:3306/studentdevdb
+
+  frontend:
+    container_name: python-frontend-prod
+    image: leventoner/student-python-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:

@@ -7,25 +7,29 @@ def seed():
     
     # Seed Roles
     for erole in models.ERole:
-        role = db.query(models.Role).filter(models.Role.name == erole).first()
+        role_name = erole.value
+        role = db.query(models.Role).filter(models.Role.name == role_name).first()
         if not role:
-            db.add(models.Role(name=erole))
+            print(f"Adding role: {role_name}")
+            db.add(models.Role(name=role_name))
     
     db.commit()
     
     # Seed Root User
     if not db.query(models.User).filter(models.User.username == "root").first():
+        print("Creating root user...")
         hashed_password = auth.get_password_hash("root")
         user = models.User(
             username="root",
             email="root@example.com",
             password=hashed_password
         )
-        admin_role = db.query(models.Role).filter(models.Role.name == models.ERole.ROLE_ADMIN).first()
+        admin_role = db.query(models.Role).filter(models.Role.name == models.ERole.ROLE_ADMIN.value).first()
         if admin_role:
             user.roles = [admin_role]
         db.add(user)
         db.commit()
+        print("Root user created.")
     
     db.close()
 

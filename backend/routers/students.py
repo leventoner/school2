@@ -6,7 +6,7 @@ import database, models, schemas, auth
 router = APIRouter(prefix="/api/students", tags=["students"])
 
 @router.get("/", response_model=List[schemas.Student])
-def get_all_students(db: Session = Depends(database.get_db)):
+def get_all_students(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     students = db.query(models.Student).all()
     # Manual conversion for courses map
     result = []
@@ -24,7 +24,7 @@ def get_all_students(db: Session = Depends(database.get_db)):
     return result
 
 @router.get("/{id}", response_model=schemas.Student)
-def get_student(id: int, db: Session = Depends(database.get_db)):
+def get_student(id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     student = db.query(models.Student).filter(models.Student.id == id).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
@@ -40,7 +40,7 @@ def get_student(id: int, db: Session = Depends(database.get_db)):
     }
 
 @router.post("/", response_model=schemas.Student, status_code=201)
-def create_student(student_in: schemas.StudentCreate, db: Session = Depends(database.get_db)):
+def create_student(student_in: schemas.StudentCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     new_student = models.Student(
         firstName=student_in.firstName,
         lastName=student_in.lastName,
@@ -70,7 +70,7 @@ def create_student(student_in: schemas.StudentCreate, db: Session = Depends(data
     }
 
 @router.put("/{id}", response_model=schemas.Student)
-def update_student(id: int, student_in: schemas.StudentUpdate, db: Session = Depends(database.get_db)):
+def update_student(id: int, student_in: schemas.StudentUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     student = db.query(models.Student).filter(models.Student.id == id).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
@@ -101,7 +101,7 @@ def update_student(id: int, student_in: schemas.StudentUpdate, db: Session = Dep
     }
 
 @router.delete("/{id}", status_code=204)
-def delete_student(id: int, db: Session = Depends(database.get_db)):
+def delete_student(id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     student = db.query(models.Student).filter(models.Student.id == id).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
